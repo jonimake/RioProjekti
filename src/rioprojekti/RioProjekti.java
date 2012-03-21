@@ -7,10 +7,10 @@ public class RioProjekti {
      */
     public static void main(String[] args) {
 
-	RioMergeSort rioMerge = new RioMergeSortImpl();
+	RioSort rioMerge = new RioMergeSortImpl();
 	
 	rioMerge.start();
 	
-	System.out.println("Mergesort time: " + rioMerge.getTimeInMilliseconds() + "milliseconds");
+	System.out.println("Mergesort time: " + rioMerge.getTimeInMilliseconds() + " milliseconds");
     }
 }
