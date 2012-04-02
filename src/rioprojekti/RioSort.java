@@ -8,6 +8,6 @@ public interface RioSort {
 
     long getTimeInMilliseconds();
 
-    void start();
+    void startSort();
     
 }

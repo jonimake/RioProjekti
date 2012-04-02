@@ -15,18 +15,20 @@ import java.util.logging.Logger;
  */
 public class DataLoaderImpl implements DataLoader {
 
-    private int size = 0;
+    private int size = 10000000;
     private String fileLocation = "testdata/10000.bin";
+   // private String fileLocation = "testdata/allkeys.bin";
 
     @Override
     public long[] readData() throws FileNotFoundException, IOException {
-	RandomAccessFile file = new RandomAccessFile(fileLocation, "r");
-	size = (int) (file.length() / Long.SIZE);
+	//RandomAccessFile file = new RandomAccessFile(fileLocation, "r");
+	//size = (int) (file.length() / Long.SIZE);
 
 	long[] data = new long[size];
 
 	for (int i = 0; i < size; i++) {
-	    data[i] = file.readLong();
+	    data[i] = (long)(Math.random() * Long.MAX_VALUE);
+	//    data[i] = file.readLong();
 	}
 	return data;
     }

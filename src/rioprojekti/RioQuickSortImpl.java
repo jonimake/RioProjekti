@@ -12,7 +12,7 @@ public class RioQuickSortImpl implements RioSort {
     }
 
     @Override
-    public void start() {
+    public void startSort() {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
     
