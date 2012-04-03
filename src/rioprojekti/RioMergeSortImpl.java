@@ -2,21 +2,15 @@ package rioprojekti;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author jonimake
- */
+
 public class RioMergeSortImpl implements RioSort {
 
     private long lastElapsedTime = 0;
     private long[] data;
-    private long[] controldata;
-    private DataLoader dataLoader = new DataLoaderImpl();
+    private DataLoader dataLoader = new RandomDataLoader(10000000);
     
     public RioMergeSortImpl(long[] A)
     {
@@ -48,11 +42,11 @@ public class RioMergeSortImpl implements RioSort {
 	lastElapsedTime = System.currentTimeMillis() - startTime;
 	if(isSorted())
 	    System.out.println("Correctly sorted!");
-
-	
+    else
+        System.out.println("Incorrectly sorted!");
 
     }
-    
+
     private boolean isSorted()
     {
 	for(int i = 0; i < data.length-1; ++i)
@@ -68,13 +62,6 @@ public class RioMergeSortImpl implements RioSort {
 	return lastElapsedTime;
     }
 
-    private void sort() {
-	throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    private void serialSort() {
-    }
-
     public long[] getData()
     {
 	return data;
@@ -88,16 +75,35 @@ public class RioMergeSortImpl implements RioSort {
 	    this.data = data;
 	}
 
+    private static final int INSERTION_SORT_THRESHOLD = 32;
 	public void mergeSort(long[] data, int left, int right) {
-	    if (left < right) {
-		int middle = (left + right) / 2;
-		mergeSort(data, left, middle);
-		mergeSort(data, middle + 1, right);
-		merge(data, left, middle, right);
-	    }
+        // Switch to insertion sort for small subarrays.
+        // Avoids cache misses caused by copying in merge, and avoids the recursion overhead
+	    if (right - left <= INSERTION_SORT_THRESHOLD) {
+            for(int i = left + 1; i <= right; i++)
+            {
+                long key = data[i];
+                int j = i - 1;
+                while(j >= left && data[j] > key)
+                {
+                    data[j + 1] = data[j];
+                    j--;
+                }
+                data[j + 1] = key;
+            }
+        }
+        else
+        {
+            int middle = (left + right) / 2;
+            mergeSort(data, left, middle);
+            mergeSort(data, middle + 1, right);
+            merge(data, left, middle, right);
+        }
 	}
 
 	private void merge(long[] data, int left, int middle, int right) {
+        if(data[middle] <= data[middle + 1]) // do nothing if the data is already sorted.
+            return;
 
 	    int a = middle - left + 1;
 	    int b = right - middle;

@@ -14,7 +14,8 @@ public class RioProjekti
      */
     public static void main(String[] args)
     {
-	DataLoader dataLoader = new DataLoaderImpl();
+	DataLoader dataLoader = new RandomDataLoader(10000000);
+    //DataLoader dataLoader = new BinaryDataLoader("testdata/10000.bin");
 	long[] data = null;
 	
 	long dataRead = System.currentTimeMillis();
@@ -32,10 +33,6 @@ public class RioProjekti
 	}
 
 	System.out.println("Data read time: " + (System.currentTimeMillis() - dataRead) + " milliseconds");
-	
-	
-	
-	
 	
 	RioSort rioMerge = new PMergeSort(copyData(data));
 	RioSort rioMerge2 = new RioMergeSortImpl(copyData(data));
