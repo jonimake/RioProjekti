@@ -30,4 +30,5 @@ public class BinaryDataLoader implements DataLoader {
         in.close();
         return data;
     }
+    
 }

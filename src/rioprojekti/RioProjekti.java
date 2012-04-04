@@ -8,14 +8,21 @@ import java.util.logging.Logger;
 
 public class RioProjekti
 {
-
+    
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args)
+    public static void main(String[] args) throws InterruptedException
     {
-	DataLoader dataLoader = new RandomDataLoader(10000000);
-    //DataLoader dataLoader = new BinaryDataLoader("testdata/10000.bin");
+	int nThreads =Runtime.getRuntime().availableProcessors();
+	String filelocation = "testdata/allkeys.bin";
+	DataLoader dataLoader = null;
+	//dataLoader = new RandomDataLoader(1000000);
+	if(args.length > 0)
+	    filelocation = args[0];
+	if(args.length > 1)
+	    nThreads = Integer.parseInt(args[1]);
+	dataLoader = new BinaryDataLoader(filelocation);
 	long[] data = null;
 	
 	long dataRead = System.currentTimeMillis();
@@ -33,8 +40,14 @@ public class RioProjekti
 	}
 
 	System.out.println("Data read time: " + (System.currentTimeMillis() - dataRead) + " milliseconds");
+
+	long javasort = System.currentTimeMillis();
 	
-	RioSort rioMerge = new PMergeSort(copyData(data));
+	java.util.Arrays.sort(copyData(data));
+	
+	System.out.println("Java array sort time: " + (System.currentTimeMillis() - javasort));
+	
+	RioSort rioMerge = new PMergeSort(copyData(data), nThreads);
 	RioSort rioMerge2 = new RioMergeSortImpl(copyData(data));
 
 	rioMerge2.startSort();
@@ -44,6 +57,10 @@ public class RioProjekti
 
 	
 	System.out.println("Parallel mergesort time: " + rioMerge.getTimeInMilliseconds() + " milliseconds");
+	
+	RioSort quick = new RioQuickSortImpl(copyData(data), nThreads);
+	quick.startSort();
+	System.out.println("Quicksort time: " + quick.getTimeInMilliseconds() + " milliseconds");
     }
     
     public static long[] copyData(long[] data)

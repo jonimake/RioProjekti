@@ -19,17 +19,6 @@ public class RioMergeSortImpl implements RioSort {
 
     @Override
     public void startSort() {
-
-	long dataRead = System.currentTimeMillis();
-	try {
-	    data = dataLoader.readData();
-	} catch (FileNotFoundException ex) {
-	    Logger.getLogger(RioMergeSortImpl.class.getName()).log(Level.SEVERE, null, ex);
-	} catch (IOException ex) {
-	    Logger.getLogger(RioMergeSortImpl.class.getName()).log(Level.SEVERE, null, ex);
-	}
-	
-	System.out.println("Data read time: " + (System.currentTimeMillis() - dataRead) + " milliseconds");
 	
 	if(isSorted())
 	    System.out.println("Already sorted!");
