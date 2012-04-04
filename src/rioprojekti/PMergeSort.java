@@ -5,21 +5,22 @@ import java.io.IOException;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import jsr166y.ForkJoinPool;
+import jsr166y.RecursiveAction;
 
 public class PMergeSort implements RioSort {
-
+    private static int INSERTION_SORT_THRESHOLD = 32;
     private long lastElapsedTime = 0;
     private long[] data, result;
-    private int nThreads = Runtime.getRuntime().availableProcessors();
+    private int nThreads;
     private final Semaphore available;
 
-    ;
 
-    public PMergeSort(long[] A, int nThreads) {
+    public PMergeSort(long[] A, int nThreads, int threshold) {
 	this.nThreads = nThreads;
 	available = new Semaphore(nThreads, true);
 	data = A;
-	System.out.println("Number of threads for parallel mergesort: " + nThreads);
+	INSERTION_SORT_THRESHOLD = threshold;
     }
 
     @Override
@@ -38,21 +39,19 @@ public class PMergeSort implements RioSort {
 
     @Override
     public void startSort() throws InterruptedException {
-
+	ForkJoinPool pool = new ForkJoinPool(nThreads);
 	if (isSorted(data)) {
 	    System.out.println("Already sorted!");
 	}
 
 	long startTime = System.currentTimeMillis();
 
-	available.acquire();
+	//available.acquire();
 	int s = 0;
 	result = new long[s + data.length];
 	//ParallelMergeSortTaskB task = new ParallelMergeSortTaskB(data, 0, data.length - 1, result, s);
 	ParallelMergeSortTask task = new ParallelMergeSortTask(getData(), 0, getData().length - 1);
-	task.start();
-
-	task.join();
+	pool.invoke(task);
 
 	lastElapsedTime = System.currentTimeMillis() - startTime;
 	if (isSorted(data)) {
@@ -63,7 +62,7 @@ public class PMergeSort implements RioSort {
 	}
     }
 
-    private class ParallelMergeSortTask extends Thread {
+    private class ParallelMergeSortTask extends RecursiveAction {
 
 	private static final int INSERTION_SORT_THRESHOLD = 32;
 	long[] data;
@@ -74,10 +73,10 @@ public class PMergeSort implements RioSort {
 	    this.left = left;
 	    this.right = right;
 	}
-
+	
 	@Override
-	public void run() {
-	    try {
+	protected void compute() {
+	     try {
 		mergeSort(data, left, right);
 	    }
 	    catch (InterruptedException ex) {
@@ -101,33 +100,20 @@ public class PMergeSort implements RioSort {
 	    }
 	    else if (left < right) {
 		int middle = (left + right) / 2;
-		ParallelMergeSortTask task = null;
-		if (available.tryAcquire()) //jos on jäljellä prosessoreja, muutoin serial mergesort
-		{
-
-		    task = new ParallelMergeSortTask(data, left, middle);
-		    task.start();
-		}
-		else {
-		    mergeSort(data, left, middle);
-		}
-
-
-		mergeSort(data, middle + 1, right);
-		if (task != null) {
-		    task.join();
-		    available.release();
-		}
-		//ParallelMergeTask mergeTask = new ParallelMergeTask(data, 0, right,)
+		ParallelMergeSortTask task = new ParallelMergeSortTask(data, left, middle);
+		ParallelMergeSortTask task2 = new ParallelMergeSortTask(data, middle + 1, right);
+		invokeAll(task, task2);
+		
 		merge(data, left, middle, right);
 
 	    }
 	}
+
+	
     }
 
     private class ParallelMergeSortTaskB extends Thread {
 
-	private static final int INSERTION_SORT_THRESHOLD = 32;
 	long[] data, result;
 	int left, right, s;
 

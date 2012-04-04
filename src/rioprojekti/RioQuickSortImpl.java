@@ -18,16 +18,26 @@ import jsr166y.RecursiveAction;
  */
 public class RioQuickSortImpl implements RioSort {
 
+    private static int INSERTION_SORT_THRESHOLD = 32;
     private long lastElapsedTime = 0;
     private long[] data, result;
     private int nThreads = Runtime.getRuntime().availableProcessors();
     private final Semaphore available;
 
-    public RioQuickSortImpl(long[] data, int nThreads) {
+    public RioQuickSortImpl(long[] data, int nThreads, int threshold) {
 	this.data = data;
 	this.nThreads = nThreads;
 	available = new Semaphore(nThreads, true);
-	System.out.println("Cores for quicksort: " + nThreads);
+	INSERTION_SORT_THRESHOLD = threshold;
+    }
+    
+    private boolean isSorted(long[] data) {
+	for (int i = 0; i < data.length - 1; ++i) {
+	    if (data[i] > data[i + 1]) {
+		return false;
+	    }
+	}
+	return true;
     }
 
     @Override
@@ -54,16 +64,15 @@ public class RioQuickSortImpl implements RioSort {
 
 	long lastval = Long.MIN_VALUE;
 
-	for (int i = 0; i < task.data.length - 1; ++i) {
-	    if (task.data[i] > task.data[i + 1]) {
-		System.out.println("Incorrect");
-		return;
-	    }
-	}
+	if(isSorted(data))
+	    System.out.println("Correctly sorted!");
+	else 
+	    System.out.println("Incorrect!");
+	
 
     }
     private class QuickSortTask extends RecursiveAction {
-	private static final int INSERTION_SORT_THRESHOLD = 32;
+	
 	long[] data;
 	int low, high;
 

@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 
 public class RioProjekti
 {
-    
+    private static int INSERTION_SORT_THRESHOLD = 32;
     /**
      * @param args the command line arguments
      */
@@ -22,6 +22,11 @@ public class RioProjekti
 	    filelocation = args[0];
 	if(args.length > 1)
 	    nThreads = Integer.parseInt(args[1]);
+	if(args.length > 2)
+	    INSERTION_SORT_THRESHOLD = Integer.parseInt(args[2]);
+	System.out.println("INSERTION_SORT_THRESHOLD: " + INSERTION_SORT_THRESHOLD);
+	System.out.println("Threads: " + nThreads);
+	
 	dataLoader = new BinaryDataLoader(filelocation);
 	long[] data = null;
 	
@@ -38,7 +43,7 @@ public class RioProjekti
 	{
 	    Logger.getLogger(PMergeSort.class.getName()).log(Level.SEVERE, null, ex);
 	}
-
+	
 	System.out.println("Data read time: " + (System.currentTimeMillis() - dataRead) + " milliseconds");
 
 	long javasort = System.currentTimeMillis();
@@ -47,7 +52,7 @@ public class RioProjekti
 	
 	System.out.println("Java array sort time: " + (System.currentTimeMillis() - javasort));
 	
-	RioSort rioMerge = new PMergeSort(copyData(data), nThreads);
+	RioSort rioMerge = new PMergeSort(copyData(data), nThreads, INSERTION_SORT_THRESHOLD);
 	RioSort rioMerge2 = new RioMergeSortImpl(copyData(data));
 
 	rioMerge2.startSort();
@@ -58,9 +63,9 @@ public class RioProjekti
 	
 	System.out.println("Parallel mergesort time: " + rioMerge.getTimeInMilliseconds() + " milliseconds");
 	
-	RioSort quick = new RioQuickSortImpl(copyData(data), nThreads);
+	RioSort quick = new RioQuickSortImpl(copyData(data), nThreads, INSERTION_SORT_THRESHOLD);
 	quick.startSort();
-	System.out.println("Quicksort time: " + quick.getTimeInMilliseconds() + " milliseconds");
+	System.out.println("Parallel quicksort time: " + quick.getTimeInMilliseconds() + " milliseconds");
     }
     
     public static long[] copyData(long[] data)
