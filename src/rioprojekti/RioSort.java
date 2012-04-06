@@ -14,9 +14,9 @@ public abstract class RioSort {
         this.numThreads = numThreads;
     }
 
-    protected boolean isSorted() {
-        for (int i = 0; i < data.length - 1; ++i) {
-            if (data[i] > data[i + 1])
+    protected boolean isSorted(long[] arr) {
+        for (int i = 0; i < arr.length - 1; ++i) {
+            if (arr[i] > arr[i + 1])
                 return false;
         }
         return true;
@@ -25,16 +25,17 @@ public abstract class RioSort {
     public void startSort() throws InterruptedException {
 
         long starttime = System.currentTimeMillis();
-        doSort();
+        long[] result = doSort();
         lastElapsedTime = System.currentTimeMillis() - starttime;
 
-        if (isSorted())
+        if (isSorted(result))
             System.out.println("Correctly sorted!");
         else
             System.out.println("Incorrect!");
+        data = null; // avoid keeping a reference to the huge array
     }
 
-    protected abstract void doSort();
+    protected abstract long[] doSort();
 
     public long getTimeInMilliseconds() {
         return lastElapsedTime;

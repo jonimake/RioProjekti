@@ -16,8 +16,7 @@ import jsr166y.RecursiveAction;
  * @author jonimake
  */
 public class RioQuickSortImpl extends RioSort {
-
-    private static final int INSERTION_SORT_THRESHOLD = 32;
+    private static final int INSERTION_SORT_THRESHOLD = 128;
     private final Semaphore available;
 
     public RioQuickSortImpl(long[] data, int nThreads, int threshold) {
@@ -26,7 +25,7 @@ public class RioQuickSortImpl extends RioSort {
     }
 
     @Override
-    public void doSort() {
+    public long[] doSort() {
 
         ForkJoinPool pool = new ForkJoinPool(numThreads);
         try {
@@ -39,7 +38,7 @@ public class RioQuickSortImpl extends RioSort {
         //task.start();
         //task.join();
         available.release();
-
+        return data;
     }
 
     private class QuickSortTask extends RecursiveAction {
@@ -84,7 +83,7 @@ public class RioQuickSortImpl extends RioSort {
 
                 int pivotNewIndex = partition(array, leftIndex, rightIndex, pivotIndex);
 
-                QuickSortTask task = new QuickSortTask(array, leftIndex, pivotNewIndex - 1);;
+                QuickSortTask task = new QuickSortTask(array, leftIndex, pivotNewIndex - 1);
                 QuickSortTask task2 = new QuickSortTask(array, pivotNewIndex + 1, rightIndex);
 
                 invokeAll(task, task2);

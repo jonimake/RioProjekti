@@ -5,25 +5,11 @@ public class RioMergeSortImpl extends RioSort {
         super(data, numThreads);
     }
 
-    public void startSort() {
-
-        if (isSorted())
-            System.out.println("Already sorted!");
-
-        long startTime = System.currentTimeMillis();
-        doSort();
-        lastElapsedTime = System.currentTimeMillis() - startTime;
-        if (isSorted())
-            System.out.println("Correctly sorted!");
-        else
-            System.out.println("Incorrectly sorted!");
-
-    }
-
     @Override
-    protected void doSort() {
+    protected long[] doSort() {
         MergeSort merge = new MergeSort();
         merge.mergeSort(getData(), 0, getData().length - 1);
+        return data;
     }
 
     private class MergeSort {

@@ -26,7 +26,6 @@ public class BinaryDataLoader implements DataLoader {
         long count = sizeInBytes / 8;
         long[] data = new long[(int)count];
         buf.asLongBuffer().get(data);
-
         in.close();
         return data;
     }
