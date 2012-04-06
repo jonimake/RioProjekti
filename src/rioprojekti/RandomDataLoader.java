@@ -12,7 +12,7 @@ public class RandomDataLoader implements DataLoader {
     }
 
     @Override
-    public long[] readData() throws FileNotFoundException, IOException {
+    public long[] readData() throws Exception {
 	long[] data = new long[size];
 
 	for (int i = 0; i < size; i++) {

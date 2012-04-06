@@ -8,58 +8,26 @@ import java.util.logging.Logger;
 import jsr166y.ForkJoinPool;
 import jsr166y.RecursiveAction;
 
-public class PMergeSort implements RioSort {
-    private static int INSERTION_SORT_THRESHOLD = 32;
-    private long lastElapsedTime = 0;
-    private long[] data, result;
-    private int nThreads;
+public class PMergeSort extends RioSort {
+    private static final int INSERTION_SORT_THRESHOLD = 32;
     private final Semaphore available;
 
 
-    public PMergeSort(long[] A, int nThreads, int threshold) {
-	this.nThreads = nThreads;
-	available = new Semaphore(nThreads, true);
-	data = A;
-	INSERTION_SORT_THRESHOLD = threshold;
+    public PMergeSort(long[] A, int nThreads) {
+        super(A, nThreads);
+        available = new Semaphore(nThreads, true);
     }
 
     @Override
-    public long getTimeInMilliseconds() {
-	return lastElapsedTime;
-    }
-
-    private boolean isSorted(long[] data) {
-	for (int i = 0; i < data.length - 1; ++i) {
-	    if (data[i] > data[i + 1]) {
-		return false;
-	    }
-	}
-	return true;
-    }
-
-    @Override
-    public void startSort() throws InterruptedException {
-	ForkJoinPool pool = new ForkJoinPool(nThreads);
-	if (isSorted(data)) {
-	    System.out.println("Already sorted!");
-	}
-
-	long startTime = System.currentTimeMillis();
-
+    public void doSort() {
+	ForkJoinPool pool = new ForkJoinPool(numThreads);
 	//available.acquire();
 	int s = 0;
-	result = new long[s + data.length];
+	long[] result = new long[s + data.length];
 	//ParallelMergeSortTaskB task = new ParallelMergeSortTaskB(data, 0, data.length - 1, result, s);
 	ParallelMergeSortTask task = new ParallelMergeSortTask(getData(), 0, getData().length - 1);
 	pool.invoke(task);
 
-	lastElapsedTime = System.currentTimeMillis() - startTime;
-	if (isSorted(data)) {
-	    System.out.println("Correctly sorted!");
-	}
-	else {
-	    System.out.println("Parallel not sorted!");
-	}
     }
 
     private class ParallelMergeSortTask extends RecursiveAction {
@@ -312,17 +280,4 @@ public class PMergeSort implements RioSort {
 
     }
 
-    /**
-     * @return the data
-     */
-    public long[] getData() {
-	return data;
-    }
-
-    /**
-     * @param data the data to set
-     */
-    public void setData(long[] data) {
-	this.data = data;
-    }
 }

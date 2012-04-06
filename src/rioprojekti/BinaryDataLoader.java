@@ -15,7 +15,7 @@ public class BinaryDataLoader implements DataLoader {
     }
 
     @Override
-    public long[] readData() throws FileNotFoundException, IOException {
+    public long[] readData() throws Exception {
         File file = new File(fileLocation);
         long sizeInBytes = file.length();
 

@@ -10,5 +10,5 @@ import java.util.List;
  */
 public interface DataLoader {
 
-    long[] readData() throws FileNotFoundException, IOException;
+    long[] readData() throws Exception;
 }

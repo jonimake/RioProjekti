@@ -12,7 +12,7 @@ public class RioProjekti
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws InterruptedException
+    public static void main(String[] args) throws Exception
     {
 	int nThreads =Runtime.getRuntime().availableProcessors();
 	String filelocation = "testdata/allkeys.bin";
@@ -24,7 +24,6 @@ public class RioProjekti
 	    nThreads = Integer.parseInt(args[1]);
 	if(args.length > 2)
 	    INSERTION_SORT_THRESHOLD = Integer.parseInt(args[2]);
-	System.out.println("INSERTION_SORT_THRESHOLD: " + INSERTION_SORT_THRESHOLD);
 	System.out.println("Threads: " + nThreads);
 	
 	dataLoader = new BinaryDataLoader(filelocation);
@@ -37,11 +36,13 @@ public class RioProjekti
 	}
 	catch (FileNotFoundException ex)
 	{
-	    Logger.getLogger(PMergeSort.class.getName()).log(Level.SEVERE, null, ex);
-	}
+        System.out.println(ex);
+        data = new RandomDataLoader(10000000).readData();
+    }
 	catch (IOException ex)
 	{
-	    Logger.getLogger(PMergeSort.class.getName()).log(Level.SEVERE, null, ex);
+        System.out.println(ex);
+        return;
 	}
 	
 	System.out.println("Data read time: " + (System.currentTimeMillis() - dataRead) + " milliseconds");
@@ -52,8 +53,8 @@ public class RioProjekti
 	
 	System.out.println("Java array sort time: " + (System.currentTimeMillis() - javasort));
 	
-	RioSort rioMerge = new PMergeSort(copyData(data), nThreads, INSERTION_SORT_THRESHOLD);
-	RioSort rioMerge2 = new RioMergeSortImpl(copyData(data));
+	RioSort rioMerge = new PMergeSort(copyData(data), nThreads);
+	RioSort rioMerge2 = new RioMergeSortImpl(copyData(data), nThreads);
 
 	rioMerge2.startSort();
 	System.out.println("Serial mergesort time: " + rioMerge2.getTimeInMilliseconds() + " milliseconds");
@@ -66,6 +67,10 @@ public class RioProjekti
 	RioSort quick = new RioQuickSortImpl(copyData(data), nThreads, INSERTION_SORT_THRESHOLD);
 	quick.startSort();
 	System.out.println("Parallel quicksort time: " + quick.getTimeInMilliseconds() + " milliseconds");
+    
+    quick = new RioQuickSortImpl(copyData(data), 1, INSERTION_SORT_THRESHOLD);
+	quick.startSort();
+	System.out.println("Serial quicksort time: " + quick.getTimeInMilliseconds() + " milliseconds");
     }
     
     public static long[] copyData(long[] data)
