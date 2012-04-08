@@ -1,6 +1,7 @@
 package rioprojekti;
 
 public class RioMergeSortImpl extends RioSort {
+
     public RioMergeSortImpl(long[] data, int numThreads) {
         super(data, numThreads);
     }
@@ -13,6 +14,7 @@ public class RioMergeSortImpl extends RioSort {
     }
 
     private class MergeSort {
+
         private static final int INSERTION_SORT_THRESHOLD = 32;
 
         public void mergeSort(long[] data, int left, int right) {
