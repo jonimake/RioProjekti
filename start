@@ -1,7 +1,7 @@
 #!/bin/bash
-JAR="$(dirname "$0")/dist/RioProjekti.jar"
 TESTDATA=/cs/fs/home/kerola/rio_testdata/uint64-keys.bin
 
-java -jar "$JAR" -pmerge "$TESTDATA"
-java -jar "$JAR" -pquick "$TESTDATA"
-java -jar "$JAR" -squick "$TESTDATA"
+cd dist
+java rioprojekti.RioProjekti -pmerge "$TESTDATA"
+java rioprojekti.RioProjekti -pquick "$TESTDATA"
+java rioprojekti.RioProjekti -squick "$TESTDATA"

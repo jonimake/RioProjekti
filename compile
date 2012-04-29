@@ -2,3 +2,7 @@
 cd `dirname "$0"`
 ant clean
 ant
+# kiitos vitun java taas kerran.
+cd dist
+unzip ../lib/*.jar
+yes 2>/dev/null | unzip RioProjekti.jar
