@@ -1,0 +1,28 @@
+#!/bin/bash
+JAR="$(dirname "$0")/dist/RioProjekti.jar"
+TESTDATA=/cs/fs/home/kerola/rio_testdata/uint64-keys.bin
+
+for nprocs in `seq 16 -1 1`; do
+	qsum=0
+    msum=0
+	for i in `seq 1 10`; do
+		qsum=$(( $qsum + $(java -jar "$JAR" -pquick "$TESTDATA" $nprocs | grep 'sort time' | sed -e 's/[^0-9]*\([0-9]*\).*/\1/') ))
+		msum=$(( $msum + $(java -jar "$JAR" -pmerge "$TESTDATA" $nprocs | grep 'sort time' | sed -e 's/[^0-9]*\([0-9]*\).*/\1/') ))
+		echo "$nprocs/16 $i/10..."
+	done
+	echo $nprocs $(( $qsum / 10 )) >> measurements/quicksort.dat
+	echo $nprocs $(( $msum / 10 )) >> measurements/mergesort.dat
+done
+
+qsum=0
+msum=0
+for i in `seq 1 4`; do
+	qsum=$(( $qsum + $(java -jar "$JAR" -squick "$TESTDATA" $nprocs | grep 'sort time' | sed -e 's/[^0-9]*\([0-9]*\).*/\1/') ))
+	msum=$(( $msum + $(java -jar "$JAR" -smerge "$TESTDATA" $nprocs | grep 'sort time' | sed -e 's/[^0-9]*\([0-9]*\).*/\1/') ))
+	echo "$i/4"
+done
+
+for i in `seq 16 -1 1`; do
+	echo $i $(( $qsum / 4 )) >> measurements/serial_quicksort.dat
+done
+(cd measurements; gnuplot plot.gnuplot)

@@ -6,13 +6,16 @@ import java.io.IOException;
 public class RioProjekti {
 
     public static void main(String[] args) throws Exception {
-        String filelocation = "testdata/allkeys.bin";
-        if (args.length > 0)
-            filelocation = args[0];
+        if (args.length < 2) {
+            System.out.println("Usage: java -jar prog.jar <algorithm> <datafile> [<nThreads>]");
+            return;
+        }
+        String filelocation = args[1];
+        String algo = args[0];
 
         int nThreads = Runtime.getRuntime().availableProcessors();
-        if (args.length > 1)
-            nThreads = Integer.parseInt(args[1]);
+        if (args.length >= 3)
+            nThreads = Integer.parseInt(args[2]);
         System.out.println("Threads: " + nThreads);
 
         DataLoader dataLoader = new BinaryDataLoader(filelocation);
@@ -30,43 +33,38 @@ public class RioProjekti {
         }
         System.out.println("Data read time: " + (System.currentTimeMillis() - dataRead) + " milliseconds");
 
-        RioSort rioMerge = new PMergeSort(data, nThreads);
-        rioMerge.startSort();
-        System.out.println("Parallel mergesort time: " + rioMerge.getTimeInMilliseconds() + " milliseconds");
+        if (algo.equals("-pmerge")) {
+            RioSort rioMerge = new PMergeSort(data, nThreads);
+            rioMerge.startSort();
+            System.out.println("Parallel mergesort time: " + rioMerge.getTimeInMilliseconds() + " milliseconds");
+        } else if (algo.equals("-smerge")) {
+            RioSort rioMerge2 = new RioMergeSortImpl(copyData(data), nThreads);
+            rioMerge2.startSort();
 
-        RioSort rioMerge2 = new RioMergeSortImpl(copyData(data), nThreads);
-        rioMerge2.startSort();
+            System.out.println(
+                    "Serial mergesort time: " + rioMerge2.getTimeInMilliseconds() + " milliseconds");
+        } else if (algo.equals("-java")) {
+            long javasort = System.currentTimeMillis();
 
-        System.out.println(
-                "Serial mergesort time: " + rioMerge2.getTimeInMilliseconds() + " milliseconds");
-        System.out.println(
-                "Mergesort speedup: " + ((double) rioMerge2.getTimeInMilliseconds()
-                / rioMerge.getTimeInMilliseconds()));
-        System.gc();
+            java.util.Arrays.sort(copyData(data));
+            System.out.println("Java array sort time: " + (System.currentTimeMillis() - javasort));
+        } else if (algo.equals("-pquick")) {
 
-        long javasort = System.currentTimeMillis();
+            RioSort quick = new RioQuickSortImpl(copyData(data), nThreads);
+            quick.startSort();
 
-        java.util.Arrays.sort(copyData(data));
+            System.out.println(
+                    "Parallel quicksort time: " + quick.getTimeInMilliseconds() + " milliseconds");
+        } else if (algo.equals("-squick")) {
+            RioSort quickSerial = new RioQuickSortImpl(copyData(data), 1);
 
-        System.out.println("Java array sort time: " + (System.currentTimeMillis() - javasort));
-        System.gc();
+            quickSerial.startSort();
 
-        RioSort quick = new RioQuickSortImpl(copyData(data), nThreads);
-        quick.startSort();
-
-        System.out.println(
-                "Parallel quicksort time: " + quick.getTimeInMilliseconds() + " milliseconds");
-        System.gc();
-        RioSort quickSerial = new RioQuickSortImpl(copyData(data), 1);
-
-        quickSerial.startSort();
-
-        System.out.println(
-                "Serial quicksort time: " + quickSerial.getTimeInMilliseconds() + " milliseconds");
-        System.out.println(
-                "Quicksort speedup: " + ((double) quickSerial.getTimeInMilliseconds()
-                / quick.getTimeInMilliseconds()));
-        System.gc();
+            System.out.println(
+                    "Serial quicksort time: " + quickSerial.getTimeInMilliseconds() + " milliseconds");
+        } else {
+            System.out.println("No such algorithm.");
+        }
     }
 
     public static long[] copyData(long[] data) {

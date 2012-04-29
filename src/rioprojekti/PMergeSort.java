@@ -22,7 +22,7 @@ public class PMergeSort extends RioSort {
     }
 
     private static class ParallelMergeSortTask extends RecursiveAction {
-
+        // Parallel mergesort: Introduction to algorithms, 3rd ed., p. 803
         private long[] data, result;
         private int left, right, s;
         private int maxDepth;
