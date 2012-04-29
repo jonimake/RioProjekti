@@ -9,6 +9,7 @@ public abstract class RioSort {
     public long[] getData() {
         return data;
     }
+
     protected RioSort(long[] data, int numThreads) {
         this.data = data;
         this.numThreads = numThreads;
@@ -40,8 +41,8 @@ public abstract class RioSort {
     public long getTimeInMilliseconds() {
         return lastElapsedTime;
     }
-    public int getDepth()
-    {
+
+    public int getDepth() {
         // log2 of number of threads
         // http://stackoverflow.com/questions/3305059/how-do-you-calculate-log-base-2-in-java-for-integers
         return 31 - Integer.numberOfLeadingZeros(numThreads);

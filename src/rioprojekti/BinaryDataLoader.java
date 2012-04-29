@@ -2,14 +2,14 @@ package rioprojekti;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 
 public class BinaryDataLoader implements DataLoader {
+
     private String fileLocation;
+
     public BinaryDataLoader(String file) {
         fileLocation = file;
     }
@@ -24,10 +24,9 @@ public class BinaryDataLoader implements DataLoader {
         buf.order(ByteOrder.LITTLE_ENDIAN);
 
         long count = sizeInBytes / 8;
-        long[] data = new long[(int)count];
+        long[] data = new long[(int) count];
         buf.asLongBuffer().get(data);
         in.close();
         return data;
     }
-    
 }

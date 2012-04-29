@@ -1,15 +1,12 @@
 package rioprojekti;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jsr166y.ForkJoinPool;
 import jsr166y.RecursiveAction;
 
 public class PMergeSort extends RioSort {
+
     public PMergeSort(long[] A, int nThreads) {
         super(A, nThreads);
     }
@@ -18,19 +15,19 @@ public class PMergeSort extends RioSort {
     public long[] doSort() {
         ForkJoinPool pool = new ForkJoinPool(numThreads);
         long[] result = new long[data.length];
-        ParallelMergeSortTaskB task = new ParallelMergeSortTaskB(data, 0, data.length - 1, result, 0, this.getDepth());
+        ParallelMergeSortTask task = new ParallelMergeSortTask(data, 0, data.length - 1, result, 0, this.getDepth());
         pool.invoke(task);
         return result;
 
     }
 
-    private static class ParallelMergeSortTaskB extends RecursiveAction {
+    private static class ParallelMergeSortTask extends RecursiveAction {
 
         private long[] data, result;
         private int left, right, s;
         private int maxDepth;
 
-        public ParallelMergeSortTaskB(long[] data, int left, int right, long[] result, int s, int maxDepth) {
+        public ParallelMergeSortTask(long[] data, int left, int right, long[] result, int s, int maxDepth) {
             this.data = data;
             this.left = left;
             this.right = right;
@@ -54,8 +51,7 @@ public class PMergeSort extends RioSort {
             // Avoids cache misses caused by copying in merge, and avoids the recursion overhead
 
             int n = right - left + 1;
-            if(maxDepth == 0)
-            {
+            if (maxDepth == 0) {
                 System.arraycopy(data, left, result, s, n);
                 RioQuickSortImpl.serialQuicksort(result, s, s + n - 1);
             } else {
@@ -63,13 +59,10 @@ public class PMergeSort extends RioSort {
                 long[] T = new long[n];
                 int middle = (left + right) / 2;
                 int middleB = middle - left + 1;
-                ParallelMergeSortTaskB taskA = new ParallelMergeSortTaskB(data, left, middle, T, 0, maxDepth - 1);
-                ParallelMergeSortTaskB taskB = new ParallelMergeSortTaskB(data, middle + 1, right, T, middleB, maxDepth - 1);
+                ParallelMergeSortTask taskA = new ParallelMergeSortTask(data, left, middle, T, 0, maxDepth - 1);
+                ParallelMergeSortTask taskB = new ParallelMergeSortTask(data, middle + 1, right, T, middleB, maxDepth - 1);
                 invokeAll(taskA, taskB);
-                //taskA.compute();
-                //taskB.compute();
                 ParallelMergeTask mergeTask = new ParallelMergeTask(T, 0, middleB - 1, middleB, n - 1, result, s, maxDepth);
-                //mergeTask.compute();
                 invokeAll(mergeTask);
                 //System.out.printf("< mergesort(%d..%d) @ %d (%d)\n", left, right, maxDepth, System.currentTimeMillis());
             }
@@ -95,15 +88,14 @@ public class PMergeSort extends RioSort {
 
         private static void merge(long[] T, int p1, int r1, int p2, int r2, long[] A, int p3, int maxDepth) throws InterruptedException {
             //System.out.printf("> %d: merge(%d..%d, %d..%d) @ %d (%d)\n", Thread.currentThread().getId(), p1, r1, p2, r2, maxDepth, System.currentTimeMillis());
-            
+
             // parallel merge T[p1..r1] and T[p2..r2] to A[p3..]
-            if(maxDepth == 0)
-            {
+            if (maxDepth == 0) {
                 serialMerge(T, p1, r1, p2, r2, A, p3);
                 //System.out.printf("< merge(%d..%d, %d..%d) @ %d (%d)\n", p1, r1, p2, r2, maxDepth, System.currentTimeMillis());
                 return;
             }
-            
+
             int n1 = r1 - p1 + 1;
             int n2 = r2 - p2 + 1;
             if (n1 < n2) { // swap p, r
@@ -165,15 +157,15 @@ public class PMergeSort extends RioSort {
 
     private static void serialMerge(long[] data, int p1, int r1, int p2, int r2, long[] dest, int d) {
         // merge data[p1..r1] and data[p2..r2] to dest[d..]
-        while(p1 <= r1 && p2 <= r2) {
-            if(data[p1] < data[p2])
+        while (p1 <= r1 && p2 <= r2) {
+            if (data[p1] < data[p2])
                 dest[d++] = data[p1++];
             else
                 dest[d++] = data[p2++];
         }
-        while(p1 <= r1)
+        while (p1 <= r1)
             dest[d++] = data[p1++];
-        while(p2 <= r2)
+        while (p2 <= r2)
             dest[d++] = data[p2++];
     }
 }

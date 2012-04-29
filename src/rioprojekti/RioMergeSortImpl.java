@@ -1,6 +1,7 @@
 package rioprojekti;
 
 public class RioMergeSortImpl extends RioSort {
+    // Serial mergesort.
 
     public RioMergeSortImpl(long[] data, int numThreads) {
         super(data, numThreads);
@@ -17,6 +18,8 @@ public class RioMergeSortImpl extends RioSort {
 
         private static final int INSERTION_SORT_THRESHOLD = 32;
 
+        // http://www.cs.helsinki.fi/u/floreen/tira2012/tira.pdf, p. 360.
+        // Insertion sort from p. 26
         public void mergeSort(long[] data, int left, int right) {
             // Switch to insertion sort for small subarrays.
             // Avoids cache misses caused by copying in merge, and avoids the recursion overhead
@@ -38,6 +41,7 @@ public class RioMergeSortImpl extends RioSort {
             }
         }
 
+        // http://www.cs.helsinki.fi/u/floreen/tira2012/tira.pdf, p. 364
         private void merge(long[] data, int left, int middle, int right) {
             if (data[middle] <= data[middle + 1]) // do nothing if the data is already sorted.
                 return;
